@@ -1,6 +1,7 @@
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
-use actix_cors::Cors; // Importa Cors
+use actix_cors::Cors;
+use routes::calls_routes::calls_routes; // Importa Cors
 use crate::routes::{users_routes::user_routes, auth_routes::auth_routes};
 use crate::config::database::establish_connection; // Importa conexión a la base de datos
 
@@ -33,6 +34,7 @@ pub async fn main() -> std::io::Result<()> {
             .configure(|cfg| {
                 cfg.service(user_routes());
                 cfg.service(auth_routes());
+                cfg.service(calls_routes());
             })
     })
     .bind("127.0.0.1:3000")?
