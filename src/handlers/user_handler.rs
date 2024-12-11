@@ -1,7 +1,9 @@
 use actix_web::{web, HttpResponse, Responder};
+use mongodb::{Client, Collection};
 use mongodm::doc;
-use serde::{Deserialize, Serialize};
-use crate::services::user_service::get_all_users;
+use mongodm::prelude::ObjectId;
+use serde::Serialize;
+use crate::services::user_service::{find_user_by_id_service, get_all_users};
 use crate::config::database::establish_connection;
 use crate::models::user_model::User;
 
@@ -33,39 +35,23 @@ pub struct UserResponse {
     email: String,
 }
 
-#[derive(Deserialize)]
-pub struct SearchQuery {
-    email: String,
-}
+pub async fn get_user_by_id_handler(
+    path: web::Path<String>, 
+    db_client: web::Data<Client>,
+) -> impl Responder {
+    let user_id_str = path.into_inner();
 
-pub async fn get_user_by_email_handler(query: web::Query<SearchQuery>) -> impl Responder {
-    let client_result = establish_connection().await;
-    match client_result {
-        Ok(client) => {
-            let db = client.database("test"); // Cambia "mydb" por tu base de datos
-            let users_collection = db.collection::<User>("users");
+    let user_collection: Collection<User> = db_client.database("test").collection("users");
 
-            let filter = doc! { "email": &query.email };
-            let user = users_collection.find_one(filter, None).await;
-
-            match user {
-                Ok(Some(u)) => {
-                    HttpResponse::Ok().json(UserResponse {
-                        id: u.id.unwrap_or_default().to_hex(),
-                        name: u.name,
-                        email: u.email,
-                    })
-                }
-                Ok(None) => {
-                    HttpResponse::NotFound().json("Usuario no encontrado")
-                }
-                Err(_) => {
-                    HttpResponse::InternalServerError().json("Error al obtener el usuario")
-                }
+    match ObjectId::parse_str(&user_id_str) {
+        Ok(user_id) => {
+            match find_user_by_id_service(&user_id, &user_collection).await {
+                Ok(user) => HttpResponse::Ok().json(user),
+                Err(error) => HttpResponse::NotFound().body(error),
             }
         }
         Err(_) => {
-            HttpResponse::InternalServerError().json("Error al conectar con la base de datos")
+            HttpResponse::BadRequest().body("ID de usuario no válido")
         }
     }
 }

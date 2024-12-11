@@ -1,11 +1,11 @@
 use actix_web::{web, HttpResponse, Responder};
+use log::info;
 use serde::Deserialize;
 use mongodb::{Collection, Client};
 
 use crate::config::config::jwt_secret;
 use crate::services::auth_service::login_service;
 use crate::models::user_model::User;
-use crate::services::jwt_service::generate_jwt;
 use crate::utils::validator::{validate_email, validate_password};
 
 #[derive(Deserialize)]
@@ -16,7 +16,7 @@ pub struct LoginRequest {
 
 pub async fn login_handler(
     login_request: web::Json<LoginRequest>,
-    db_client: web::Data<Client>,  // Cambiado para recibir el cliente de MongoDB
+    db_client: web::Data<Client>,
 ) -> impl Responder {
 
     if let Err(e) = validate_email(&login_request.email) {
@@ -28,19 +28,27 @@ pub async fn login_handler(
     }
 
     let user_collection: Collection<User> = db_client.database("test").collection("users");
+    let secret = jwt_secret();
 
-    match login_service(&login_request.email, &login_request.password, &user_collection).await {
-        Ok(true) => {
-            let secret = jwt_secret();
-            match generate_jwt(&login_request.email, &secret) {
-                Ok(token) => HttpResponse::Ok().json(serde_json::json!({
-                    "message": "Login exitoso",
-                    "token": token
-                })),
-                Err(e) => HttpResponse::InternalServerError().json(format!("Error al generar el token: {}", e)),
+    match login_service(
+        &login_request.email,
+        &login_request.password,
+        &user_collection,
+        &secret,
+    )
+    .await
+    {
+        Ok(token) => HttpResponse::Ok().json(serde_json::json!({
+            "message": "Login exitoso",
+            "token": token
+        })),
+        Err(e) => {
+            info!("Error en el login: {}", e);
+            match e.as_str() {
+                "Contraseña incorrecta" => HttpResponse::Unauthorized().json(e),
+                "Usuario no encontrado" => HttpResponse::NotFound().json(e),
+                _ => HttpResponse::InternalServerError().json(e),
             }
         }
-        Ok(false) => HttpResponse::Unauthorized().json("Contraseña incorrecta"),
-        Err(e) => HttpResponse::InternalServerError().json(format!("Error: {}", e)),
     }
 }

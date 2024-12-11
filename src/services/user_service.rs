@@ -1,4 +1,5 @@
 use mongodb::Collection;
+use mongodm::{doc, prelude::ObjectId};
 use crate::models::user_model::User;
 use futures::stream::StreamExt;
 use std::error::Error;
@@ -15,4 +16,15 @@ pub async fn get_all_users(collection: &Collection<User>) -> Result<Vec<User>, B
     }
     
     Ok(users)
+}
+
+pub async fn find_user_by_id_service(
+    user_id: &ObjectId,
+    user_collection: &Collection<User>,
+) -> Result<User, String> {
+    match user_collection.find_one(doc! {"_id": user_id}, None).await {
+        Ok(Some(user)) => Ok(user),  // Si encontramos el usuario
+        Ok(None) => Err("Usuario no encontrado".to_string()),  // Si no encontramos el usuario
+        Err(err) => Err(format!("Error al acceder a la base de datos: {}", err)), // Manejo de errores
+    }
 }
