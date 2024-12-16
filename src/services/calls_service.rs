@@ -10,7 +10,7 @@ pub async fn get_all_calls(collection: &Collection<Calls>) -> Result<Vec<Calls>,
     while let Some(call) = cursor.next().await {
         match call {
             Ok(call_data) => calls.push(call_data),
-            Err(e) => eprintln!("Error al obtener usuario: {}", e),
+            Err(e) => eprintln!("Error al obtener llamada: {}", e),
         }
     }
     
