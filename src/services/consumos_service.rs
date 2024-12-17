@@ -169,3 +169,77 @@ fn calculate_duration_months(fecha_ini: &DateTime, fecha_fin: &DateTime) -> u32 
         _ => 0,
     }
 }
+
+pub async fn get_all_consumos_year(
+    collection: &Collection<Consumos>,
+) -> Result<Vec<u32>, Box<dyn Error>> {
+    let now = Utc::now();
+    let current_year = now.year();
+
+    let mut cursor = collection.find(None, None).await?;
+    let mut meses_suma: Vec<u32> = vec![0; 12]; // Inicializa un vector con un elemento por cada mes del año
+
+    while let Some(consumo) = cursor.next().await {
+        match consumo {
+            Ok(consumo_data) => {
+                let fecha_ini = consumo_data.fecha_ini;
+                let fecha_fin = consumo_data.fecha_fin;
+
+                // Verificar si el consumo está dentro del año actual
+                if is_within_year(&fecha_ini, current_year) || is_within_year(&fecha_fin, current_year) {
+                    // Obtener el mes inicial y final del consumo
+                    let mes_ini = extract_month(&fecha_ini);
+                    let mes_fin = extract_month(&fecha_fin);
+
+                    let duracion = calculate_duration_year(&fecha_ini, &fecha_fin);
+
+                    // Sumar la duración al total correspondiente a los meses
+                    for mes in mes_ini..=mes_fin {
+                        if mes >= 1 && mes <= 12 {
+                            meses_suma[(mes - 1) as usize] += duracion; // Mes 1 se mapea al índice 0
+                        } else {
+                            eprintln!("Error: Mes fuera de rango: {}", mes);
+                        }
+                    }
+                }
+            }
+            Err(e) => eprintln!("Error al obtener consumo: {}", e),
+        }
+    }
+
+    Ok(meses_suma)
+}
+
+fn is_within_year(fecha: &DateTime, year: i32) -> bool {
+    let timestamp = fecha.timestamp_millis();
+    let chrono_dt = Utc.timestamp_millis_opt(timestamp);
+
+    if let chrono::LocalResult::Single(dt) = chrono_dt {
+        return dt.year() == year;
+    }
+
+    false
+}
+
+fn extract_month(fecha: &DateTime) -> u32 {
+    let timestamp_seconds = fecha.timestamp_millis() / 1000;
+    let chrono_dt = Utc.timestamp_opt(timestamp_seconds, 0);
+
+    match chrono_dt {
+        chrono::LocalResult::Single(dt) => dt.month(),
+        _ => 0,
+    }
+}
+
+fn calculate_duration_year(fecha_ini: &DateTime, fecha_fin: &DateTime) -> u32 {
+    let start = chrono::Utc.timestamp_millis_opt(fecha_ini.timestamp_millis());
+    let end = chrono::Utc.timestamp_millis_opt(fecha_fin.timestamp_millis());
+
+    match (start, end) {
+        (chrono::LocalResult::Single(start), chrono::LocalResult::Single(end)) => {
+            let duration = end.signed_duration_since(start); // Calcula la duración
+            duration.num_minutes() as u32
+        }
+        _ => 0,
+    }
+}
