@@ -8,7 +8,7 @@ actix-web = "4.0"
 actix-cors = "0.6"
 axum = "0.6"
 bcrypt = "0.12"
-chrono = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 dotenv = "0.15"
 futures = "0.3"
 jsonwebtoken = "9.2.0"
@@ -18,6 +18,6 @@ mongodm = "0.10"
 regex = "1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.114"
-tokio = { version = "1.0", features = ["full"] }
+tokio = { version = "1.0", features = ["time"] }
 thiserror = "1.0"
 warp = "0.3"

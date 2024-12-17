@@ -8,4 +8,5 @@ pub struct Consumos {
     pub id: Option<ObjectId>,
     pub fecha_ini: DateTime,
     pub fecha_fin: DateTime,
+    pub hora: Option<u32>,
 }
