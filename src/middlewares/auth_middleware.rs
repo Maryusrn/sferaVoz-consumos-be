@@ -1,5 +1,13 @@
 use jsonwebtoken::{decode, Validation, DecodingKey};
-use actix_web::{Error, HttpRequest, HttpResponse, dev::ServiceRequest, dev::ServiceResponse};
+use actix_web::{dev::ServiceRequest, Error, HttpResponse};
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    pub sub: String,
+    pub exp: usize,
+}
 
 pub fn validate_jwt(token: &str, secret: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
     let token_data = decode::<Claims>(

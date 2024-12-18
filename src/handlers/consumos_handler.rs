@@ -12,7 +12,7 @@ pub async fn get_consumos_hour() -> impl Responder {
         }
     };
 
-    let db = client.database("test");
+    let db = client.database("consumos");
     let collection = db.collection::<Consumos>("consumos");
     
     match get_all_consumos_hour(&collection, "2024-12-01").await {
@@ -33,7 +33,7 @@ pub async fn get_consumos_month() -> impl Responder {
         }
     };
 
-    let db = client.database("test");
+    let db = client.database("consumos");
     let collection = db.collection::<Consumos>("consumos");
     
     match get_all_consumos_month(&collection).await {
@@ -54,7 +54,7 @@ pub async fn get_consumos_year() -> impl Responder {
         }
     };
 
-    let db = client.database("test");
+    let db = client.database("consumos");
     let collection = db.collection::<Consumos>("consumos");
     
     match get_all_consumos_year(&collection).await {

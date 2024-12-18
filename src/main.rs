@@ -1,16 +1,20 @@
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
 use actix_cors::Cors;
+
 use routes::calls_routes::calls_routes;
 use routes::consumos_routes::consumos_routes;
+
 use crate::routes::{users_routes::user_routes, auth_routes::auth_routes};
 use crate::config::database::establish_connection;
+
 mod config;
 mod models;
 mod services;
 mod handlers;
 mod routes;
 mod utils;
+mod middlewares;
 
 #[tokio::main]
 pub async fn main() -> std::io::Result<()> {

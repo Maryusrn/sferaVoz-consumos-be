@@ -8,6 +8,7 @@ use crate::models::user_model::User;
 struct Claims {
     id: String,
     email: String,
+    rol: bool,
 }
 
 pub fn generate_token(user: &User, secret: &str) -> Result<String, Box<dyn Error>> {
@@ -15,6 +16,8 @@ pub fn generate_token(user: &User, secret: &str) -> Result<String, Box<dyn Error
     let claims = Claims {
         id: user.id.clone().map_or_else(|| "unknown".to_string(), |oid| oid.to_hex()),
         email: user.email.clone(),
+        rol: user.rol.clone(),
+
     };
 
     let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_ref()))?;

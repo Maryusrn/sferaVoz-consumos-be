@@ -16,7 +16,7 @@ pub async fn get_users_handler() -> impl Responder {
         }
     };
 
-    let db = client.database("test");
+    let db = client.database("consumos");
     let collection = db.collection::<User>("users");
     
     match get_all_users(&collection).await {
@@ -41,7 +41,7 @@ pub async fn get_user_by_id_handler(
 ) -> impl Responder {
     let user_id_str = path.into_inner();
 
-    let user_collection: Collection<User> = db_client.database("test").collection("users");
+    let user_collection: Collection<User> = db_client.database("consumos").collection("users");
 
     match ObjectId::parse_str(&user_id_str) {
         Ok(user_id) => {

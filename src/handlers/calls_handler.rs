@@ -12,7 +12,7 @@ pub async fn get_calls_handler() -> impl Responder {
         }
     };
 
-    let db = client.database("test");
+    let db = client.database("consumos");
     let collection = db.collection::<Calls>("calls");
     
     match get_all_calls(&collection).await {

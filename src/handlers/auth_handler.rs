@@ -27,7 +27,7 @@ pub async fn login_handler(
         return HttpResponse::BadRequest().json(e);
     }
 
-    let user_collection: Collection<User> = db_client.database("test").collection("users");
+    let user_collection: Collection<User> = db_client.database("consumos").collection("users");
     let secret = jwt_secret();
 
     match login_service(
