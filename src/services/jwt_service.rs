@@ -17,7 +17,7 @@ pub fn generate_token(user: &User, secret: &str) -> Result<String, Box<dyn Error
         id: user.id.clone().map_or_else(|| "unknown".to_string(), |oid| oid.to_hex()),
         email: user.email.clone(),
         rol: user.rol.clone(),
-
+        
     };
 
     let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_ref()))?;
