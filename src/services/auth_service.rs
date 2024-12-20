@@ -10,6 +10,7 @@ pub async fn login_service(
     password: &str,
     user: &Collection<User>,
     jwt_secret: &str,
+    remember_me: bool,
 ) -> Result<String, String> {
     info!("Buscando usuario con el correo: {}", email);
 
@@ -22,10 +23,10 @@ pub async fn login_service(
                 Ok(true) => {
                     info!("Contraseña verificada correctamente");
 
-                    // Genera el token JWT
                     match generate_token(
                         &user,
                         jwt_secret,
+                        remember_me,
                     ) {
                         Ok(token) => Ok(token),
                         Err(err) => {

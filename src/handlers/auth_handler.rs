@@ -12,6 +12,7 @@ use crate::utils::validator::{validate_email, validate_password};
 pub struct LoginRequest {
     email: String,
     password: String,
+    remember_me: bool,
 }
 
 pub async fn login_handler(
@@ -35,6 +36,7 @@ pub async fn login_handler(
         &login_request.password,
         &user_collection,
         &secret,
+        login_request.remember_me
     )
     .await
     {
