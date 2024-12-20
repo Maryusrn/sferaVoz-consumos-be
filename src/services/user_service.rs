@@ -23,8 +23,8 @@ pub async fn find_user_by_id_service(
     user_collection: &Collection<User>,
 ) -> Result<User, String> {
     match user_collection.find_one(doc! {"_id": user_id}, None).await {
-        Ok(Some(user)) => Ok(user),  // Si encontramos el usuario
-        Ok(None) => Err("Usuario no encontrado".to_string()),  // Si no encontramos el usuario
-        Err(err) => Err(format!("Error al acceder a la base de datos: {}", err)), // Manejo de errores
+        Ok(Some(user)) => Ok(user),  //
+        Ok(None) => Err("Usuario no encontrado".to_string()), 
+        Err(err) => Err(format!("Error al acceder a la base de datos: {}", err)),
     }
 }
