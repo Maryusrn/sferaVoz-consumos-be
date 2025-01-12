@@ -15,7 +15,7 @@ pub async fn get_consumos_hour() -> impl Responder {
     let db = client.database("consumos");
     let collection = db.collection::<Consumos>("consumos");
     
-    match get_all_consumos_hour(&collection, "2024-12-01").await {
+    match get_all_consumos_hour(&collection, "2025-01-15").await {
         Ok(consumos) => HttpResponse::Ok().json(consumos), 
         Err(e) => {
             eprintln!("Error al obtener registro de consumos: {}", e);

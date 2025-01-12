@@ -18,8 +18,6 @@ mod middlewares;
 
 #[tokio::main]
 pub async fn main() -> std::io::Result<()> {
-    println!("Server is listening on http://127.0.0.1:3000");
-
     std::env::set_var("RUST_LOG", "actix_web=debug");
 
     let db_client = establish_connection().await.unwrap();
